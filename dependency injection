@@ -1,0 +1,72 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class ComplexDIExample {
+
+    public static void main(String[] args) {
+        // Create a DI container
+        DIContainer diContainer = new DIContainer();
+
+        // Register dependencies
+        diContainer.registerDependency(ServiceInterface.class, new ComplexServiceImplementation());
+
+        // Resolve dependencies
+        ServiceInterface service = diContainer.resolveDependency(ServiceInterface.class);
+
+        // Use the service
+        service.doSomething();
+    }
+
+    // Interface for services
+    interface ServiceInterface {
+        void doSomething();
+    }
+
+    // Complex implementation of ServiceInterface
+    static class ComplexServiceImplementation implements ServiceInterface {
+        private RepositoryInterface repository;
+
+        // Constructor injection
+        public ComplexServiceImplementation(RepositoryInterface repository) {
+            this.repository = repository;
+        }
+
+        @Override
+        public void doSomething() {
+            repository.getData();
+            System.out.println("Complex service is doing something.");
+        }
+    }
+
+    // Interface for repositories
+    interface RepositoryInterface {
+        void getData();
+    }
+
+    // Implementation of RepositoryInterface
+    static class RepositoryImplementation implements RepositoryInterface {
+        @Override
+        public void getData() {
+            System.out.println("Repository is fetching data.");
+        }
+    }
+
+    // Simple DI container
+    static class DIContainer {
+        private Map<Class<?>, Object> dependencies = new HashMap<>();
+
+        // Register dependency
+        public <T> void registerDependency(Class<T> type, T instance) {
+            dependencies.put(type, instance);
+        }
+
+        // Resolve dependency
+        public <T> T resolveDependency(Class<T> type) {
+            // Check if dependency exists
+            if (!dependencies.containsKey(type)) {
+                throw new RuntimeException("Dependency not found: " + type.getName());
+            }
+            return type.cast(dependencies.get(type));
+        }
+    }
+}
